@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        /* CSS Baru: Gaya Elegan dan Profesional */
+        body {
+            /* Latar belakang gelap (Dark Mode-inspired) */
+            background: #1a1a2e; /* Biru tua/ungu gelap */
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #ffffff; /* Teks putih untuk kontras */
+        }
+
+        .login-box {
+            /* Kotak login dengan latar belakang biru-ungu yang lebih terang */
+            background: #232946; 
+            padding: 45px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); /* Bayangan dalam yang kuat */
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #4f5466; /* Border tipis untuk detail */
+        }
+
+        h2 {
+            /* Warna cerah sebagai aksen */
+            color: #eebbc3; /* Pink/Merah muda pastel */
+            margin-bottom: 35px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 25px;
+            background: #1a1a2e; /* Input box lebih gelap dari kotak utama */
+            color: #ffffff;
+            border: 1px solid #4f5466;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #eebbc3; /* Aksen pink saat fokus */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(238, 187, 195, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #ff8906; /* Oranye cerah/Emas sebagai tombol aksi utama */
+            color: #232946; /* Teks gelap pada tombol cerah */
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button{
+          margin-top:14px;
+          padding:10px;
+          width:100%;
+          border-radius:8px;
+          background:#10b981;
+          color:#fff;border:none}
+          a{display:block;
+          margin-top:12px;
+          text-align:center;
+          color:#6366f1
+        }
+
+        .register-link {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .register-link p {
+            color: #aaaaaa;
+        }
+
+        .register-link a {
+            color: #eebbc3; /* Aksen pink untuk tautan */
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .register-link a:hover {
+            color: #ff8906; /* Aksen oranye saat hover */
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+        <h3>Admin Login</h3>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="login()">Login</button>
+
+        <!-- 🔥 TOMBOL REGISTER DITAMBAHKAN DI SINI -->
+        <a href="register.html" class="register-link">Belum punya akun? Register</a>
+
+        <p id="msg"></p>
+    </div>
+
+    <script>
+        function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const msg = document.getElementById("msg");
+
+            fetch("http://localhost:3000/api/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    msg.style.color = "green";
+                    msg.innerText = "Login berhasil!";
+
+                    // SIMPAN TOKEN JWT
+                    localStorage.setItem("adminToken", data.token);
+
+                    // Arahkan ke dashboard admin
+                    setTimeout(() => {
+                        window.location.href = "admin.html";
+                    }, 800);
+
+                } else {
+                    msg.style.color = "red";
+                    msg.innerText = data.message || "Login gagal";
+                }
+            })
+            .catch(err => {
+                msg.style.color = "red";
+                msg.innerText = "Terjadi kesalahan";
+                console.error(err);
+            });
+        }
+    </script>
+
+</body>
+</html>
