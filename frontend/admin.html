@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            background: #c8e7ff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 90%;
+            margin: auto;
+            margin-top: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+        }
+        h2 {
+            color: #01579b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table th {
+            background: #0288d1;
+            color: white;
+            padding: 10px;
+        }
+        table td {
+            background: #f7f7f7;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        button {
+            padding: 6px 12px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .logout-btn {
+            float: right;
+            background: #e53935;
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>👋 Selamat Datang di Admin Dashboard</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+
+    <hr><br>
+
+    <!-- ================= USER TABLE ================= -->
+    <h2>Data Pengguna</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+    </table>
+
+    <br><hr><br>
+
+    <!-- ================= API KEY TABLE ================= -->
+    <h2>API Keys Aktif</h2>
+    <table>
+        <thead>
+            <tr>
+            <th>ID</th>
+            <th>Key Preview</th>
+            <th>User ID</th>
+            <th>Status</th>
+            <th>Active Date</th>
+            <th>Out Of Date</th>
+            <th>Last Update</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="keyTableBody"></tbody>
+</table>
+
+</div>
+
+<script>
+// ======================== CEK LOGIN =========================
+if (!localStorage.getItem("adminToken")) {
+    window.location.href = "login.html";
+}
+
+// ======================== LOAD DASHBOARD ====================
+async function loadDashboard() {
+    const token = localStorage.getItem("adminToken");
+
+    const res = await fetch("http://localhost:3000/api/admin/dashboard", {
+        headers: { 
+            "Authorization": "Bearer " + token  // ← FIX UTAMA
+        }
+    });
+
+    const data = await res.json();
+
+    // ====================== USER TABLE ======================
+    let userRows = "";
+    data.users.forEach(u => {
+        userRows += `
+            <tr>
+                <td>${u.id}</td>
+                <td>${u.firstname}</td>
+                <td>${u.lastname}</td>
+                <td>${u.email}</td>
+                <td><button onclick="deleteUser(${u.id})">Delete</button></td>
+            </tr>
+        `;
+    });
+    document.getElementById("userTableBody").innerHTML = userRows;
+
+    // ===================== API KEY TABLE ====================
+        let keyRows = "";
+        data.keys.forEach(k => {
+            keyRows += `
+                <tr>
+                    <td>${k.id}</td>
+                    <td>${k.keys ? k.keys.substring(0, 15) : ''}...</td>
+                    <td>${k.user_id}</td>
+                    <td>${k.status}</td>
+                    <td>${k.active_date}</td>
+                    <td>${k.outofdate}</td>
+                    <td>${k.last_update}</td>
+                    <td><button onclick="deleteKey(${k.id})">Delete</button></td>
+                </tr>
+            `;
+        });
+        document.getElementById("keyTableBody").innerHTML = keyRows;
+}
+
+loadDashboard();
+
+// ======================= DELETE USER =======================
+async function deleteUser(id) {
+    if (!confirm("Yakin ingin menghapus user ini?")) return;
+
+    const res = await fetch(`http://localhost:3000/api/admin/deleteUser/${id}`, {
+        method: "DELETE",
+        headers: { 
+            "Authorization": "Bearer " + localStorage.getItem("adminToken") 
+        }
+    });
+
+    const out = await res.json();
+    alert(out.message);
+    loadDashboard();
+}
+
+// ======================= DELETE API KEY =====================
+async function deleteKey(id) {
+    if (!confirm("Yakin ingin menghapus API Key ini?")) return;
+
+    const res = await fetch(`http://localhost:3000/api/admin/deleteKey/${id}`, {
+        method: "DELETE",
+        headers: { 
+            "Authorization": "Bearer " + localStorage.getItem("adminToken") 
+        }
+    });
+
+    const out = await res.json();
+    alert(out.message);
+    loadDashboard();
+}
+
+// ======================== LOGOUT ============================
+function logout() {
+    localStorage.removeItem("adminToken");
+    window.location.href = "login.html";
+}
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Generate API Key</title>
+<style>
+    /* 1. Latar Belakang Biru & 2. Centering Penuh dengan Flexbox */
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #007bff; /* Warna biru solid */
+        
+        /* Flexbox untuk Centering Konten */
+        display: flex;
+        justify-content: center; /* Center Horizontal */
+        align-items: center; /* Center Vertical */
+        min-height: 100vh; /* Tinggi penuh Viewport */
+    }
+
+    /* Kontainer Utama */
+    .container {
+        width: 420px;
+        /* margin: 60px auto; Dihapus karena sudah dicenter oleh Flexbox */
+        padding: 30px;
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        color: white;
+        text-align: center;
+    }
+
+    /* Kolom Input (Input Field) */
+    input {
+        width: 100%;
+        /* 3. Padding Simetris: 14px (Atas/Bawah) dan 14px (Kiri/Kanan) */
+        padding: 14px 14px; 
+        border: none;
+        outline: none;
+        margin-top: 15px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.3);
+        color: white;
+        /* Untuk memastikan total lebar input tidak melebihi container */
+        box-sizing: border-box; 
+    }
+
+    input::placeholder { color: #eee; }
+
+    /* Box untuk Tombol */
+    .btn-box {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 20px;
+    }
+
+    /* Tombol */
+    button {
+        padding: 12px 25px;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        color: white;
+    }
+
+    .save { background: #2b57ff; }
+    .admin { background: orange; }
+
+    .result { margin-top: 20px; }
+</style>
+
+<div class="container">
+    <h2>Generate API Key</h2>
+
+    <input id="firstname" type="text" placeholder="Nama Depan">
+    <input id="lastname" type="text" placeholder="Nama Belakang">
+    <input id="email" type="email" placeholder="Email">
+
+    <input id="apikey" type="text" placeholder="API Key akan muncul di sini" readonly>
+
+    <div class="btn-box">
+        <button class="save" onclick="generateKey()">Save</button>
+        <button class="admin" onclick="window.location.href='login.html'">Admin</button>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function generateKey() {
+    const firstname = document.getElementById("firstname").value;
+    const lastname = document.getElementById("lastname").value;
+    const email = document.getElementById("email").value;
+
+    const res = await fetch("http://localhost:3000/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firstname, lastname, email })
+});
+
+
+    const data = await res.json();
+
+    if (data.success) {
+        document.getElementById("apikey").value = data.key;
+        document.getElementById("result").innerHTML =
+            `<div class="result">API Key berhasil dibuat:<br>${data.key}</div>`;
+    } else {
+        document.getElementById("result").innerHTML =
+            `<div class="result" style="color:red">Error: ${data.message}</div>`;
+    }
+}
+</script>
+
+</body>
+</html>
